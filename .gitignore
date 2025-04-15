@@ -1,0 +1,27 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# VSCode settings
+.vscode/
+
+# Package lock files (tuỳ chọn)
+package-lock.json
+
+# Render.com cache
+.cache/
