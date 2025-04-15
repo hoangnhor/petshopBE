@@ -1,33 +1,26 @@
-const express = require("express");
-const dotenv = require('dotenv');
-const mongoose = require("mongoose");
-const routes = require("./routes/index.js");
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+const express = require('express')
+const router = express.Router()
+const UserController = require('../controllers/UserController')
+const { authMiddleware, authUserMiddleware } = require('../middleware/authMiddleware')
 
-dotenv.config();  // Load biến môi trường từ file .env
 
-const app = express();
-const port = process.env.PORT || 3030;
 
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cookieParser());
+router.post('/sign-up', UserController.createUser)
+// dang nhap 
+router.post('/sign-in', UserController.loginUser)
+//logout
+router.post('/log-out', UserController.logoutUser)
 
-// Đăng ký các route API
-routes(app);
+//update tt
+router.put('/update-user/:id', authUserMiddleware, UserController.updateUser)
+//xoa tt
+router.delete('/delete-user/:id', authMiddleware, UserController.deleteUser)
+//lay nguoi dung
+router.get('/getAll', authMiddleware, UserController.getAllUser)
+//
+router.get('/get-details/:id', authUserMiddleware, UserController.getDetailsUser)
+//
+router.post('/refresh-token', UserController.refreshToken)
 
-// Kết nối đến MongoDB
-mongoose.connect(process.env.MONGODB_URL)
-    .then(() => {
-        console.log('Kết nối đến MongoDB thành công!');
-    })
-    .catch((err) => {
-        console.error('Lỗi khi kết nối MongoDB:', err.message);
-    });
 
-// Khởi động server backend
-app.listen(port, () => {
-    console.log('Server đang chạy trên cổng:', port);
-});
+module.exports = router
