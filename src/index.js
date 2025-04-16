@@ -28,10 +28,12 @@ app.use(cookieParser());  // Để xử lý cookies trong các yêu cầu
 // Đăng ký các route API
 routes(app);
 
+
 // Kết nối MongoDB
 mongoose.connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
+
 })
     .then(() => {
         console.log('Kết nối đến MongoDB thành công!');
@@ -61,3 +63,4 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
     process.exit(1); // Dừng ứng dụng khi có lỗi nghiêm trọng
 });
+

@@ -1,3 +1,4 @@
+
 const UserServices = require('../services/UserServices');
 const JwtService = require('../services/JwtService');
 
@@ -190,4 +191,5 @@ module.exports = {
     getDetailsUser,
     refreshToken,
     logoutUser
+
 };

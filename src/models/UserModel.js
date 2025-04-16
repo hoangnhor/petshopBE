@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Để mã hóa mật khẩu
 const validator = require('validator'); // Để kiểm tra email hợp lệ
@@ -19,11 +20,11 @@ const userSchema = new mongoose.Schema(
         isAdmin: { type: Boolean, default: false, required: true },
         phone: { type: Number },
         address: { type: String },
+
         avatar: { type: String, default: 'default-avatar-url' }, // Avatar mặc định nếu không có
     },
     { timestamps: true }
 );
-
 // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
@@ -41,3 +42,4 @@ userSchema.methods.isPasswordMatch = async function (password) {
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
+

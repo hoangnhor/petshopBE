@@ -1,3 +1,4 @@
+
 const ProductService = require('../services/ProductService');
 
 // API tạo sản phẩm
@@ -111,9 +112,11 @@ const getAllProduct = async (req, res) => {
 }
 
 module.exports = {
+
     createProduct,
     updateProduct,
     getDetailsProduct,
     deleteProduct,
     getAllProduct
+
 }

@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 
@@ -21,3 +22,4 @@ router.delete('/:id', validateObjectId, authMiddleware, ProductController.delete
 router.get('/', ProductController.getAllProduct);
 
 module.exports = router;
+
