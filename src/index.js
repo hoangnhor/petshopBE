@@ -1,3 +1,4 @@
+
 const express = require("express");
 const dotenv = require("dotenv");
 const { default: mongoose } = require("mongoose");
@@ -38,3 +39,4 @@ mongoose
 app.listen(port, () => {
     console.log("Server is running in port: " + port);
 });
+
