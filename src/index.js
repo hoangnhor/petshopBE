@@ -29,8 +29,6 @@ routes(app);
 
 mongoose
     .connect(process.env.MONGODB_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
         maxPoolSize: 10,
     })
