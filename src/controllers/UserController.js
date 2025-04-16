@@ -1,180 +1,187 @@
-const  UserServices=require ('../services/UserServices')
-const  JwtService=require ('../services/JwtService')
+const UserServices = require('../services/UserServices');
+const JwtService = require('../services/JwtService');
 
-//api dang ky
-const createUser= async(req,res)=>{
-    try{
-        const {name , email , password, confirmPassword}=req.body
-        const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        const isCheckEmail = reg.test(email)
-        if ( !email || !password || !confirmPassword   ){
+// API đăng ký người dùng
+const createUser = async (req, res) => {
+    try {
+        const { name, email, password, confirmPassword } = req.body;
+        const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isCheckEmail = reg.test(email);
+
+        if (!email || !password || !confirmPassword) {
             return res.status(200).json({
-                status:'ERR',
-                message:'dau vao bat buoc'
-            })
-        }
-        else if(!isCheckEmail){
+                status: 'ERR',
+                message: 'Dữ liệu đầu vào không đầy đủ'
+            });
+        } else if (!isCheckEmail) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'Email không hợp lệ'
-            })
-        }
-        else if (password !== confirmPassword) {
+            });
+        } else if (password !== confirmPassword) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'Mật khẩu không khớp'
-            })
+            });
         }
-        const response= await UserServices.createUser(req.body)
-         return res.status(200).json(response)
-    }catch(e){
+
+        const response = await UserServices.createUser(req.body);
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi tạo người dùng.'
+        });
     }
 }
-//api dang nhap
-const loginUser= async(req,res)=>{
-    try{
-        const { email , password}=req.body
-        const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        const isCheckEmail = reg.test(email)
-        if ( !email || !password ){
+
+// API đăng nhập người dùng
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isCheckEmail = reg.test(email);
+
+        if (!email || !password) {
             return res.status(200).json({
-                status:'ERR',
-                message:'dau vao bat buoc'
-            })
-        }
-        else if(!isCheckEmail){
+                status: 'ERR',
+                message: 'Dữ liệu đầu vào không đầy đủ'
+            });
+        } else if (!isCheckEmail) {
             return res.status(200).json({
                 status: 'ERR',
                 message: 'Email không hợp lệ'
-            })
+            });
         }
-        
-        const response= await UserServices.loginUser(req.body)
-        const {refresh_token, ...newReponse } = response
-        res.cookie('refresh_token',refresh_token,{
+
+        const response = await UserServices.loginUser(req.body);
+        const { refresh_token, ...newResponse } = response;
+        res.cookie('refresh_token', refresh_token, {
             httpOnly: true,
             secure: false,
             samesite: "strict",
-            path:'/'
+            path: '/'
         });
-         return res.status(200).json(newReponse)
-    }catch(e){
+        return res.status(200).json(newResponse);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi đăng nhập.'
+        });
     }
 }
-//update tt
-const updateUser= async(req,res)=>{
-    try{
-        const userId=req.params.id
-        const data =req.body
-        if(!userId){
+
+// API cập nhật thông tin người dùng
+const updateUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const data = req.body;
+
+        if (!userId) {
             return res.status(200).json({
-                status:'ERR',
-                message:'userid bat buoc'
-            })
+                status: 'ERR',
+                message: 'ID người dùng là bắt buộc'
+            });
         }
 
-
-        const response= await UserServices.updateUser(userId,data)
-         return res.status(200).json(response)
-    }catch(e){
+        const response = await UserServices.updateUser(userId, data);
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi cập nhật người dùng.'
+        });
     }
 }
-// xoa tt
-const deleteUser= async(req,res)=>{
-    try{
-        const userId=req.params.id
-        if(!userId){
+
+// API xóa người dùng
+const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        if (!userId) {
             return res.status(200).json({
-                status:'ERR',
-                message:'userid bat buoc'
-            })
+                status: 'ERR',
+                message: 'ID người dùng là bắt buộc'
+            });
         }
 
-
-        const response= await UserServices.deleteUser(userId)
-         return res.status(200).json(response)
-    }catch(e){
+        const response = await UserServices.deleteUser(userId);
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi xóa người dùng.'
+        });
     }
 }
 
-const getAllUser= async(req,res)=>{
-    try{
-        const response= await UserServices.getAllUser()
-         return res.status(200).json(response)
-    }catch(e){
+// API lấy tất cả người dùng
+const getAllUser = async (req, res) => {
+    try {
+        const response = await UserServices.getAllUser();
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi lấy danh sách người dùng.'
+        });
     }
 }
-///
-const getDetailsUser= async(req,res)=>{
-    try{
-        const userId=req.params.id
-        if(!userId){
+
+// API lấy chi tiết người dùng
+const getDetailsUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        if (!userId) {
             return res.status(200).json({
-                status:'ERR',
-                message:'userid bat buoc'
-            })
+                status: 'ERR',
+                message: 'ID người dùng là bắt buộc'
+            });
         }
-        const response= await UserServices.getDetailsUser(userId)
-         return res.status(200).json(response)
-    }catch(e){
+
+        const response = await UserServices.getDetailsUser(userId);
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi lấy chi tiết người dùng.'
+        });
     }
 }
-const refreshToken= async(req,res)=>{
 
-    try{
-        const token=req.cookies.refresh_token
-        if(!token){
+// API làm mới token
+const refreshToken = async (req, res) => {
+    try {
+        const token = req.cookies.refresh_token;
+
+        if (!token) {
             return res.status(200).json({
-                status:'ERR',
-                message:'the token bat buoc'
-            })
+                status: 'ERR',
+                message: 'Token làm mới là bắt buộc'
+            });
         }
-        const response= await JwtService.refreshTokenJwtService(token)
-         return res.status(200).json(response)
-        return
-    }catch(e){
+
+        const response = await JwtService.refreshTokenJwtService(token);
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi làm mới token.'
+        });
     }
 }
 
-// logout
-const logoutUser= async(req,res)=>{
-    try{
-        res.clearCookie('refresh_token')
-         return res.status(200).json({
-            status:'ok',
-            message:'dang xuat thanh cong'
-         })
-
-    }catch(e){
+// API đăng xuất người dùng
+const logoutUser = async (req, res) => {
+    try {
+        res.clearCookie('refresh_token');
+        return res.status(200).json({
+            status: 'ok',
+            message: 'Đăng xuất thành công'
+        });
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi đăng xuất.'
+        });
     }
 }
 
-
-module.exports={
+module.exports = {
     createUser,
     loginUser,
     updateUser,
@@ -183,4 +190,4 @@ module.exports={
     getDetailsUser,
     refreshToken,
     logoutUser
-}
+};

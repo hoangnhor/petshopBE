@@ -1,54 +1,70 @@
-const jwt=require('jsonwebtoken')
-const dotenv=require('dotenv')
-dotenv.config()
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const authMiddleware=(req,res,next)=>{
-    
-    const token=req.headers.token?.split(' ')[1]
-    jwt.verify(token,process.env.ACCESS_TOKEN, function (err,user){
-        if(err){
-            return res.status(404).json({
-                message:'xac thuc',
-                status:'error'
-            })
-        }
-        
-        if(user?.isAdmin){
-            next();
-        }else{
-            return res.status(401).json({
-                message:'Xác thực thất bại',
-                status:'error'
-            })
-        }
-    });
-}
+// Middleware cho xác thực admin
+const authMiddleware = async (req, res, next) => {
+    const token = req.headers.token?.split(' ')[1]; // Lấy token từ header (Bearer <token>)
 
-//cap token moi khi het han
-const authUserMiddleware=(req,res,next)=>{
-    
-    const token=req.headers.token?.split(' ')[1]
-    const userid=req.params.id
-    jwt.verify(token,process.env.ACCESS_TOKEN, function (err,user){
-        if(err){
-            return res.status(404).json({
-                message:'xac thuc',
-                status:'error'
-            })
+    if (!token) {
+        return res.status(401).json({
+            message: 'Token không tồn tại',
+            status: 'error'
+        });
+    }
+
+    try {
+        const user = await jwt.verify(token, process.env.ACCESS_TOKEN);
+
+        if (user?.isAdmin) {
+            return next(); // Chuyển sang middleware tiếp theo nếu là admin
+        } else {
+            return res.status(403).json({
+                message: 'Không có quyền truy cập. Cần quyền admin.',
+                status: 'error'
+            });
         }
-        console.log('user',user)
-      
-        if(user?.isAdmin ||user?.id===userid){
-            next();
-        }else{
-            return res.status(401).json({
-                message:'Xác thực thất bại',
-                status:'error'
-            })
+    } catch (err) {
+        return res.status(401).json({
+            message: 'Xác thực thất bại. Token không hợp lệ hoặc hết hạn.',
+            status: 'error'
+        });
+    }
+};
+
+// Middleware cho xác thực người dùng cụ thể
+const authUserMiddleware = async (req, res, next) => {
+    const token = req.headers.token?.split(' ')[1]; // Lấy token từ header (Bearer <token>)
+    const userId = req.params.id; // Lấy userId từ params
+
+    if (!token) {
+        return res.status(401).json({
+            message: 'Token không tồn tại',
+            status: 'error'
+        });
+    }
+
+    try {
+        const user = await jwt.verify(token, process.env.ACCESS_TOKEN);
+
+        // Kiểm tra quyền admin hoặc trùng khớp id người dùng
+        if (user?.isAdmin || user?.id === userId) {
+            return next(); // Chuyển sang middleware tiếp theo nếu đủ quyền
+        } else {
+            return res.status(403).json({
+                message: 'Không đủ quyền truy cập. Bạn cần quyền admin hoặc quyền của chính người dùng.',
+                status: 'error'
+            });
         }
-    });
-}
-module.exports={
+    } catch (err) {
+        return res.status(401).json({
+            message: 'Xác thực thất bại. Token không hợp lệ hoặc hết hạn.',
+            status: 'error'
+        });
+    }
+};
+
+module.exports = {
     authMiddleware,
     authUserMiddleware
-}
+};

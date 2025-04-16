@@ -1,100 +1,116 @@
-const  ProductService=require ('../services/ProductService')
+const ProductService = require('../services/ProductService');
 
+// API tạo sản phẩm
+const createProduct = async (req, res) => {
+    try {
+        const { name, image, type, price, countInStock, description } = req.body;
 
-//api san pham
-const createProduct= async(req,res)=>{
-    try{
-        const {name , image , type, price, countInStock,description}=req.body    
-        if (!name|| !image || !type || !price|| !countInStock){
+        if (!name || !image || !type || !price || !countInStock) {
             return res.status(200).json({
-                status:'ERR',
-                message:'dau vao bat buoc'
-                
-            })
-        }
-        console.log('response',req.body)
-        const response= await ProductService.createProduct(req.body)
-       
-         return res.status(200).json(response)
-    }catch(e){
-        return res.status(404).json({
-            message :e
-        })  
-    }
-}
-// cap nhat sam phâm 
-const updateProduct= async(req,res)=>{
-    try{
-        const productId=req.params.id
-        const data =req.body
-        if(!productId){
-            return res.status(200).json({
-                status:'ERR',
-                message:'id sản phấm bat buoc'
-            })
+                status: 'ERR',
+                message: 'Dữ liệu đầu vào không đầy đủ'
+            });
         }
 
+        console.log('Response:', req.body);
 
-        const response= await ProductService.updateProduct(productId,data)
-         return res.status(200).json(response)
-    }catch(e){
+        const response = await ProductService.createProduct(req.body);
+
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi tạo sản phẩm.'
+        });
     }
 }
-//
-const getDetailsProduct= async(req,res)=>{
-    try{
-        const productId=req.params.id
-        if(!productId){
+
+// API cập nhật sản phẩm
+const updateProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const data = req.body;
+
+        if (!productId) {
             return res.status(200).json({
-                status:'ERR',
-                message:'id san pham bat buoc'
-            })
-        }
-        const response= await ProductService.getDetailsProduct(productId)
-         return res.status(200).json(response)
-    }catch(e){
-        return res.status(404).json({
-            message :e
-        })  
-    }
-}
-// xoa san pham
-const deleteProduct= async(req,res)=>{
-    try{
-        const productId=req.params.id
-        if(!productId){
-            return res.status(200).json({
-                status:'ERR',
-                message:'id san pham bat buoc'
-            })
+                status: 'ERR',
+                message: 'ID sản phẩm là bắt buộc'
+            });
         }
 
+        const response = await ProductService.updateProduct(productId, data);
 
-        const response= await ProductService.deleteProduct(productId)
-         return res.status(200).json(response)
-    }catch(e){
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi cập nhật sản phẩm.'
+        });
     }
 }
 
-const getAllProduct= async(req,res)=>{
-    
-    try{
-        const { limit, page, sort, filter }= req.query
-        const response= await ProductService.getAllProduct(Number(limit) || 8  , Number(page) || 0, sort )
-         return res.status(200).json(response)
-    }catch(e){
+// API lấy chi tiết sản phẩm
+const getDetailsProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        if (!productId) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'ID sản phẩm là bắt buộc'
+            });
+        }
+
+        const response = await ProductService.getDetailsProduct(productId);
+
+        return res.status(200).json(response);
+    } catch (e) {
         return res.status(404).json({
-            message :e
-        })  
+            message: e.message || 'Có lỗi xảy ra khi lấy chi tiết sản phẩm.'
+        });
     }
 }
-module.exports={
+
+// API xóa sản phẩm
+const deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        if (!productId) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'ID sản phẩm là bắt buộc'
+            });
+        }
+
+        const response = await ProductService.deleteProduct(productId);
+
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(404).json({
+            message: e.message || 'Có lỗi xảy ra khi xóa sản phẩm.'
+        });
+    }
+}
+
+// API lấy tất cả sản phẩm
+const getAllProduct = async (req, res) => {
+    try {
+        const { limit, page, sort, filter } = req.query;
+
+        const response = await ProductService.getAllProduct(
+            Number(limit) || 8,
+            Number(page) || 0,
+            sort
+        );
+
+        return res.status(200).json(response);
+    } catch (e) {
+        return res.status(404).json({
+            message: e.message || 'Có lỗi xảy ra khi lấy tất cả sản phẩm.'
+        });
+    }
+}
+
+module.exports = {
     createProduct,
     updateProduct,
     getDetailsProduct,

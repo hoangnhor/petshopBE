@@ -1,54 +1,31 @@
-const express = require('express')
-<<<<<<< HEAD
-const router = express.Router()
-const UserController = require('../controllers/UserController')
-const { authMiddleware, authUserMiddleware } = require('../middleware/authMiddleware')
+const express = require('express');
+const router = express.Router();
+const UserController = require('../controllers/UserController');
+const { authMiddleware, authUserMiddleware } = require('../middleware/authMiddleware');
+const validateObjectId = require('../middleware/validateObjectId');
 
+// Đăng ký người dùng
+router.post('/sign-up', UserController.createUser);
 
+// Đăng nhập người dùng
+router.post('/sign-in', UserController.loginUser);
 
-router.post('/sign-up', UserController.createUser)
-// dang nhap 
-router.post('/sign-in', UserController.loginUser)
-//logout
-router.post('/log-out', UserController.logoutUser)
+// Đăng xuất người dùng
+router.post('/log-out', UserController.logoutUser);
 
-//update tt
-router.put('/update-user/:id', authUserMiddleware, UserController.updateUser)
-//xoa tt
-router.delete('/delete-user/:id', authMiddleware, UserController.deleteUser)
-//lay nguoi dung
-router.get('/getAll', authMiddleware, UserController.getAllUser)
-//
-router.get('/get-details/:id', authUserMiddleware, UserController.getDetailsUser)
-//
-router.post('/refresh-token', UserController.refreshToken)
+// Cập nhật thông tin người dùng (chỉ dành cho người dùng cụ thể hoặc admin)
+router.put('/update-user/:id', validateObjectId, authUserMiddleware, UserController.updateUser);
 
+// Xóa thông tin người dùng (chỉ dành cho admin)
+router.delete('/delete-user/:id', validateObjectId, authMiddleware, UserController.deleteUser);
 
-module.exports = router
-=======
-const router =express.Router()
-const UserController=require('../controllers/UserController')
-const { authMiddleware,authUserMiddleware } = require('../middleware/authMiddleware')
+// Lấy danh sách tất cả người dùng (chỉ dành cho admin)
+router.get('/getAll', authMiddleware, UserController.getAllUser);
 
+// Lấy thông tin chi tiết người dùng (chỉ dành cho người dùng cụ thể hoặc admin)
+router.get('/get-details/:id', validateObjectId, authUserMiddleware, UserController.getDetailsUser);
 
+// Lấy refresh token (không yêu cầu xác thực người dùng)
+router.post('/refresh-token', UserController.refreshToken);
 
-router.post('/sign-up',UserController.createUser)
-// dang nhap 
-router.post('/sign-in',UserController.loginUser)
-//logout
-router.post('/log-out',UserController.logoutUser)
-
-//update tt
-router.put('/update-user/:id',authUserMiddleware,UserController.updateUser)
-//xoa tt
-router.delete('/delete-user/:id',authMiddleware,UserController.deleteUser)
-//lay nguoi dung
-router.get('/getAll',authMiddleware,UserController.getAllUser)
-//
-router.get('/get-details/:id',authUserMiddleware,UserController.getDetailsUser)
-//
-router.post('/refresh-token',UserController.refreshToken)
-
-
-module.exports=router
->>>>>>> 0594244 (first commit)
+module.exports = router;

@@ -1,16 +1,23 @@
-const express = require('express')
-const router =express.Router()
+const express = require('express');
+const router = express.Router();
 
-const ProductController=require('../controllers/ProductController')
-const { authMiddleware } = require('../middleware/authMiddleware')
+const ProductController = require('../controllers/ProductController');
+const { authMiddleware } = require('../middleware/authMiddleware');
+const validateObjectId = require('../middleware/validateObjectId');
 
+// Tạo sản phẩm (yêu cầu đăng nhập)
+router.post('/', authMiddleware, ProductController.createProduct);
 
+// Cập nhật sản phẩm (yêu cầu đăng nhập)
+router.put('/:id', validateObjectId, authMiddleware, ProductController.updateProduct);
 
-router.post('/create',ProductController.createProduct)
-router.put('/update/:id',authMiddleware,ProductController.updateProduct)
-router.get('/get-details/:id',ProductController.getDetailsProduct)
-router.delete('/delete/:id',ProductController.deleteProduct)
-router.get('/get-all',ProductController.getAllProduct)
+// Lấy chi tiết sản phẩm
+router.get('/:id', validateObjectId, ProductController.getDetailsProduct);
 
+// Xóa sản phẩm (yêu cầu đăng nhập)
+router.delete('/:id', validateObjectId, authMiddleware, ProductController.deleteProduct);
 
-module.exports=router;
+// Lấy danh sách sản phẩm (phân trang, lọc, sắp xếp)
+router.get('/', ProductController.getAllProduct);
+
+module.exports = router;
