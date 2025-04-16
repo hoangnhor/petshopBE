@@ -1,53 +1,50 @@
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv'); // Sửa typo
+dotenv.config();
 
-const jwt = require('jsonwebtoken')
-const dotennv = require('dotenv');
-dotennv.config()
-
-const genneralAccessToken = async (payload) => {
+const generalAccessToken = (payload) => { // Loại async vì không cần
+    if (!payload.id || payload.isAdmin === undefined) {
+        throw new Error('Invalid payload');
+    }
     const access_token = jwt.sign({
         ...payload
-    }, process.env.ACCESS_TOKEN, { expiresIn: '15m' })
-    return access_token
-}
-const genneralRefreshToken = async (payload) => {
+    }, process.env.ACCESS_TOKEN, { expiresIn: '15m' });
+    return access_token;
+};
+
+const generalRefreshToken = (payload) => { // Loại async vì không cần
+    if (!payload.id || payload.isAdmin === undefined) {
+        throw new Error('Invalid payload');
+    }
     const refresh_token = jwt.sign({
         ...payload
-    }, process.env.REFRESH_TOKEN, { expiresIn: '365d' })
-    return refresh_token
-}
+    }, process.env.REFRESH_TOKEN, { expiresIn: '365d' });
+    return refresh_token;
+};
+
 const refreshTokenJwtService = (token) => {
     return new Promise((resolve, reject) => {
         try {
-            jwt.verify(token, process.env.REFRESH_TOKEN, async (err, user) => {
+            jwt.verify(token, process.env.REFRESH_TOKEN, (err, user) => {
                 if (err) {
-                    console.log('err', err)
-                    resolve({
-                        status: 'err',
-                        message: 'xac thuc'
-                    })
+                    throw new Error('Token verification failed');
                 }
-
-                const access_token = await genneralAccessToken({
+                const access_token = generalAccessToken({
                     id: user?.id,
                     isAdmin: user?.isAdmin
-                })
-
+                });
                 resolve({
-                    status: 'OK',
-                    message: ' thanh cong',
                     access_token
-                })
-            })
-
-
-
+                });
+            });
         } catch (e) {
-            reject(e)
+            reject(e);
         }
-    })
-}
+    });
+};
+
 module.exports = {
-    genneralAccessToken,
-    genneralRefreshToken,
+    generalAccessToken,
+    generalRefreshToken,
     refreshTokenJwtService
-}
+};

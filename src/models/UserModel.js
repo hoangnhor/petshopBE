@@ -1,20 +1,20 @@
-
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
     {
         name: { type: String },
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
+        email: { type: String, required: true, unique: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
+        password: { type: String, required: true, minlength: 6 },
         isAdmin: { type: Boolean, default: false, required: true },
-        phone: { type: Number },
+        phone: { type: String }, // Thay Number thành String
         address: { type: String },
-        avatar: { type: String },
-
+        avatar: { type: String }
     },
     {
-        timestamps: true
+        timestamps: true,
+        indexes: [{ key: { email: 1 }, unique: true }] // Index cho email
     }
 );
+
 const User = mongoose.model("User", userSchema);
-module.exports = User
+module.exports = User;

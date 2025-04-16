@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Middleware cho xác thực người dùng cụ thể (kiểm tra nếu người dùng là admin hoặc đúng id)
-const authUserMiddleware = async (req, res, next) => {
+const authUserMiddleware = (req, res, next) => {
     const token = req.headers.token?.split(' ')[1]; // Lấy token từ header (Bearer <token>)
     const userId = req.params.id; // Lấy userId từ params
 
@@ -14,11 +14,14 @@ const authUserMiddleware = async (req, res, next) => {
         });
     }
 
-    try {
-        // Kiểm tra và xác thực token
-        const user = await jwt.verify(token, process.env.ACCESS_TOKEN);
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
+        if (err) {
+            return res.status(401).json({
+                message: 'Xác thực thất bại. Token không hợp lệ hoặc hết hạn.',
+                status: 'error'
+            });
+        }
 
-        // Kiểm tra quyền admin hoặc trùng khớp id người dùng
         if (user?.isAdmin || user?.id === userId) {
             return next(); // Chuyển sang middleware tiếp theo nếu đủ quyền
         } else {
@@ -27,12 +30,7 @@ const authUserMiddleware = async (req, res, next) => {
                 status: 'error'
             });
         }
-    } catch (err) {
-        return res.status(401).json({
-            message: 'Xác thực thất bại. Token không hợp lệ hoặc hết hạn.',
-            status: 'error'
-        });
-    }
+    });
 };
 
 module.exports = authUserMiddleware;

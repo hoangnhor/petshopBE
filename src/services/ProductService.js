@@ -1,170 +1,114 @@
+const Product = require("../models/ProductModel");
 
-const Product = require("../models/ProductModel")
-
-
-//tao api san pham
+// Tạo API sản phẩm
 const createProduct = (newProduct) => {
     return new Promise(async (resolve, reject) => {
-        const { name, image, type, price, countInStock, description } = newProduct
+        const { name, image, type, price, countInStock, description } = newProduct;
         try {
-            const checkProduct = await Product.findOne({
-                name: name
-            })
+            const checkProduct = await Product.findOne({ name });
             if (checkProduct !== null) {
-                resolve({
-                    status: 'OK',
-                    message: 'ten san pham da ton tai'
-                })
+                throw new Error('ten san pham da ton tai');
             }
-            //tao api san pham
-            const newProduct = await Product.create({
+            const createdProduct = await Product.create({
                 name, image, type, price, countInStock, description
-            })
-            if (newProduct) {
-                resolve({
-                    status: 'OK',
-                    message: 'thanh cong',
-                    data: newProduct
-                })
-            }
+            });
+            resolve({
+                data: createdProduct
+            });
         } catch (e) {
-            reject(e)
+            if (e.name === 'ValidationError') throw new Error(e.message);
+            reject(e);
         }
-    })
-}
-// cap nhat san pham
+    });
+};
+
+// Cập nhật sản phẩm
 const updateProduct = (id, data) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkProduct = await Product.findOne({
-                _id: id
-            })
-            if (checkProduct === null) {
-                resolve({
-                    status: 'OK',
-                    message: ' sản phẩm kh xác định'
-                })
+            const checkProduct = await Product.findOne({ _id: id });
+            if (!checkProduct) {
+                throw new Error('san pham khong xac dinh');
             }
-            const updateProduct = await Product.findByIdAndUpdate(id, data, { new: true })
-
-
-            return resolve({
-                status: 'OK',
-                message: 'thanh cong',
-                data: updateProduct
-            })
-
+            const updatedProduct = await Product.findByIdAndUpdate(id, data, { new: true });
+            resolve({
+                data: updatedProduct
+            });
         } catch (e) {
-            reject(e)
+            if (e.name === 'CastError') throw new Error('Invalid ID');
+            reject(e);
         }
-    })
-}
-//xoa san pham
+    });
+};
+
+// Xóa sản phẩm
 const deleteProduct = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const checkProduct = await Product.findOne({
-                _id: id
-            })
-            if (checkProduct === null) {
-                return resolve({
-                    status: 'OK',
-                    message: 'san pham khong ton tai'
-                })
+            const checkProduct = await Product.findOne({ _id: id });
+            if (!checkProduct) {
+                throw new Error('san pham khong ton tai');
             }
-            await Product.findByIdAndDelete(id)
-
-            return resolve({
-                status: 'OK',
-                message: ' xoa thanh cong',
-
-            })
-
+            await Product.findByIdAndDelete(id);
+            resolve({
+                message: 'xoa thanh cong'
+            });
         } catch (e) {
-            reject(e)
+            if (e.name === 'CastError') throw new Error('Invalid ID');
+            reject(e);
         }
-    })
-}
+    });
+};
 
-// 
+// Lấy tất cả sản phẩm
 const getAllProduct = (limit, page, sort, filter) => {
-
     return new Promise(async (resolve, reject) => {
         try {
-            const totalProduct = await Product.countDocuments()
-
+            let query = Product.find();
             if (filter) {
-                const label = filter[0];
-
-                const allObjectFilter = await Product.find({ [label]: { '$regex': filter[1] } }).limit(limit).skip(page * limit)
-                resolve({
-                    status: 'OK',
-                    message: ' thanh cong',
-                    data: allObjectFilter,
-                    total: totalProduct,
-                    pageCurrent: Number(page + 1),
-                    totalPage: Math.ceil(totalProduct / limit)
-                })
+                const [label, value] = filter;
+                query = query.where(label).regex(new RegExp(value, 'i'));
             }
             if (sort) {
-
-                const objectSort = {}
-                objectSort[sort[1]] = sort[0]
-
-                const allProductSort = await Product.find().limit(limit).skip(page * limit).sort(objectSort)
-                resolve({
-                    status: 'OK',
-                    message: ' thanh cong',
-                    data: allProductSort,
-                    total: totalProduct,
-                    pageCurrent: Number(page + 1),
-                    totalPage: Math.ceil(totalProduct / limit)
-                })
+                const [order, field] = sort;
+                query = query.sort({ [field]: order === 'asc' ? 1 : -1 });
             }
-            const allProduct = await Product.find().limit(limit).skip(page * limit)
-
+            const totalProduct = await Product.countDocuments(query);
+            const allProduct = await query.limit(limit).skip(page * limit);
             resolve({
-                status: 'OK',
-                message: ' thanh cong',
                 data: allProduct,
                 total: totalProduct,
                 pageCurrent: Number(page + 1),
                 totalPage: Math.ceil(totalProduct / limit)
-            })
-
+            });
         } catch (e) {
-            reject(e)
+            reject(e);
         }
-    })
-}
-///
+    });
+};
+
+// Lấy chi tiết sản phẩm
 const getDetailsProduct = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const product = await Product.findOne({
-                _id: id
-            })
-            if (product === null) {
-                return resolve({
-                    status: 'OK',
-                    message: 'san pham khong ton tai'
-                })
+            const product = await Product.findOne({ _id: id });
+            if (!product) {
+                throw new Error('san pham khong ton tai');
             }
-            return resolve({
-                status: 'OK',
-                message: ' thanh cong',
+            resolve({
                 data: product
-            })
-
+            });
         } catch (e) {
-            reject(e)
+            if (e.name === 'CastError') throw new Error('Invalid ID');
+            reject(e);
         }
-    })
-}
+    });
+};
+
 module.exports = {
     createProduct,
     updateProduct,
     getDetailsProduct,
     deleteProduct,
-    getAllProduct,
-}
+    getAllProduct
+};
