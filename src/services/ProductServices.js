@@ -186,11 +186,41 @@ const getDetailsProduct = (id) => {
         }
     });
 };
+const searchProduct = (keyword) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Tìm kiếm sản phẩm có name chứa keyword (không phân biệt hoa thường)
+            const products = await Product.find({
+                name: { $regex: keyword, $options: 'i' }
+            }).populate('type');
 
+            // Kiểm tra nếu không tìm thấy sản phẩm
+            if (products.length === 0) {
+                return resolve({
+                    status: 'ERR',
+                    message: 'Không có',
+                });
+            }
+
+            return resolve({
+                status: 'OK',
+                message: 'Thành công',
+                data: products,
+            });
+        } catch (e) {
+            reject({
+                status: 'ERR',
+                message: e.message || 'Lỗi không xác định trong searchProduct',
+                stack: e.stack,
+            });
+        }
+    });
+};
 module.exports = {
     createProduct,
     updateProduct,
     getDetailsProduct,
     deleteProduct,
     getAllProduct,
+    searchProduct,
 };

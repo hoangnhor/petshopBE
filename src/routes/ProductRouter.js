@@ -8,5 +8,5 @@ router.put('/update/:id', authMiddleware, ProductController.updateProduct); // C
 router.delete('/delete/:id', authMiddleware, ProductController.deleteProduct); // Chỉ admin
 router.get('/getall', ProductController.getAllProduct); // Mọi người
 router.get('/get-details/:id', ProductController.getDetailsProduct); // Mọi người
-
+router.get('/search', ProductController.searchProduct);
 module.exports = router;

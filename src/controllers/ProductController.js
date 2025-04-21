@@ -90,10 +90,30 @@ const getAllProduct = async (req, res) => {
     }
 };
 
+const searchProduct = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        if (!keyword) {
+            return res.status(400).json({
+                status: 'ERR',
+                message: 'Keyword là bắt buộc',
+            });
+        }
+        const response = await ProductService.searchProduct(keyword);
+        return res.status(response.status === 'OK' ? 200 : 400).json(response);
+    } catch (e) {
+        return res.status(500).json({
+            status: 'ERR',
+            message: e.message,
+        });
+    }
+};
+
 module.exports = {
     createProduct,
     updateProduct,
     getDetailsProduct,
     deleteProduct,
     getAllProduct,
+    searchProduct,
 };
